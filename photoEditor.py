@@ -1,16 +1,16 @@
 import math
-
 from PIL import Image, ImageDraw, ImageFont
 import os
 
 
-def image_function(i):
+def image_function(i,word):
     name = str(i) + ".jpg"
+    out_name = word + name
     image = Image.open(name)
     font_type = ImageFont.truetype('Arial.ttf', 50)
     draw = ImageDraw.Draw(image)
-    draw.text(xy=(10, 10), text=str(i), fill=(0, 0, 0), font=font_type, stroke_width=1, stroke_fill=(255, 255, 255))
-    image = image.save('converted/' + name)
+    draw.text(xy=(10, 10), text=(word+str(i)), fill=(0, 0, 0), font=font_type, stroke_width=1, stroke_fill=(255, 255, 255))
+    image = image.save('converted/' + out_name)
     print("Image {} is done".format(i))
 
 
@@ -21,9 +21,9 @@ def make_directory(path):
         print(error)
 
 
-def save_img(number, folder):
+def save_img(number, folder, word):
     try:
-        name = str(number) + ".jpg"
+        name = word + str(number) + ".jpg"
         import_name = "converted/" + name
         folderName = str(folder) + "/"
         image = Image.open(import_name)
@@ -31,21 +31,38 @@ def save_img(number, folder):
         image = image.save(filepath)
         print("Image {} is moved successfully".format(number))
     except:
-        file.write("image {} has moving error ".format(number))
+        file.write("image {} has moving error \n".format(number))
+
+
+def set_prefix():
+    global prefix
+    pinput = input("Do you want to add a prefix(y/n) : ")
+    if pinput == 'y' or pinput == 'Y':
+        prefix = input('Enter your prefix : ')
+        print('--> prefix set to \'{}\' '.format(prefix))
+        if len(prefix) > 5:
+            print('--> warning : prefix is too long !!')
+            print('--> No prefix ')
+            prefix = ""
+    else:
+        print('--> No prefix ')
+        prefix = ''
+    return prefix
 
 
 imageCount = 0
 file = open('report.txt', 'w+')
 start = int(input("Enter starting number : "))
 end = int(input("Enter ending number : "))
+pr = set_prefix()
 make_directory('converted')
 print('-> converted folder created successfully')
 for i in range(start, end + 1):
     try:
-        image_function(i)
+        image_function(i, pr)
         imageCount += 1
     except:
-        file.write("image {} has error ".format(i))
+        file.write("image {} has error \n".format(i))
 inp = input("Do you want to divide images(y/n) : ")
 if inp == "Y" or inp == "y":
     currentImg = start
@@ -56,9 +73,9 @@ if inp == "Y" or inp == "y":
         for j in range(1, folCount + 1):
             path = 'processed/' + str(j)
             make_directory(path)
-            currentImgEnd = int(currentImg + math.floor((end - start + 1) / folCount)-1)
-            for k in range(currentImg, currentImgEnd+1):
-                save_img(k, j)
+            currentImgEnd = int(currentImg + math.floor((end - start + 1) / folCount) - 1)
+            for k in range(currentImg, currentImgEnd + 1):
+                save_img(k, j, pr)
             currentImg = currentImgEnd + 1
     else:
         print("process terminated ! ")
